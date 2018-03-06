@@ -43,7 +43,7 @@ void Game::handleEvents()
 void Game::update()
 {
 	SDL_RenderClear(this->mRenderer);
-	if (sillyTime == 10)
+	if (sillyTime == 30)
 	{
 		sillyTime = 0;
 		mSnake->move();

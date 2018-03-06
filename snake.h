@@ -25,6 +25,7 @@ class Snake
 		void move();
 		void render();
 	private:
+		bool turned;
 		Sprite* createSnakePart(SDL_Point* pos, int snake_part);
 		const int DIR_MULT = 90;
 		int direction;

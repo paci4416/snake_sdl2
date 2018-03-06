@@ -41,28 +41,31 @@ void Snake::handleEvents(SDL_Event* e)
 				if (direction == DIR_UP || direction == DIR_DOWN)
 				{
 					direction = DIR_LEFT;
+					turned = true;
 				}
 				break;
 			case SDLK_w:
 				if (direction == DIR_LEFT || direction == DIR_RIGHT)
 				{
 					direction = DIR_UP;
+					turned = true;
 				}
 				break;
 			case SDLK_d:
 				if (direction == DIR_UP || direction == DIR_DOWN)
 				{
 					direction = DIR_RIGHT;
+					turned = true;
 				}
 				break;
 			case SDLK_s:
 				if (direction == DIR_LEFT || direction == DIR_RIGHT)
 				{
 					direction = DIR_DOWN;
+					turned = true;
 				}
 				break;
 		}
-		mSprites.front()->setRotation(direction*DIR_MULT);
 	}
 }
 
@@ -87,12 +90,23 @@ void Snake::move()
 
 	Sprite* head = mSprites.front();
 	head->setPos(mPos.x, mPos.y);
+	head->setRotation(direction*DIR_MULT);
 	mSprites.pop_front();
 
 	Sprite* tail = mSprites.back();
-	tail->setClipRect(&mSnakeClips[SNAKE_BODY]);
+	if (turned == true)
+	{
+		tail->setClipRect(&mSnakeClips[SNAKE_ROT]);
+		printf("aa\n");
+		turned = false;
+	}
+	else
+	{
+		tail->setClipRect(&mSnakeClips[SNAKE_BODY]);
+	}
 	mSprites.pop_back();
 	tail->setPos(oldPos.x, oldPos.y);
+	tail->setRotation(head->getRotation());
 	mSprites.push_front(tail);
 	mSprites.push_front(head);
 	mSprites.back()->setClipRect(&mSnakeClips[SNAKE_TAIL]);
