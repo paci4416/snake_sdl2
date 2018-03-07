@@ -6,16 +6,20 @@ Snake::Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos)
 	mTexture = t;
 	mSnakeClips[SNAKE_HEAD] = {0, 0, BLOCK_SIZE, BLOCK_SIZE};
 	mSnakeClips[SNAKE_BODY] = {BLOCK_SIZE, 0, BLOCK_SIZE, BLOCK_SIZE};
-	mSnakeClips[SNAKE_ROT] = {BLOCK_SIZE*2, 0, BLOCK_SIZE, BLOCK_SIZE};
+	mSnakeClips[SNAKE_ROT_A] = {BLOCK_SIZE*2, 0, BLOCK_SIZE, BLOCK_SIZE};
+	mSnakeClips[SNAKE_ROT_B] = {BLOCK_SIZE*2, BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE};
 	mSnakeClips[SNAKE_TAIL] = {BLOCK_SIZE*3, 0, BLOCK_SIZE, BLOCK_SIZE};
 	mPos.x = startPos->x;
 	mPos.y = startPos->y;
 	direction = DIR_LEFT;
+	turned = false;
 
 	SDL_Point pos;
 	pos.x = startPos->x;
 	pos.y = startPos->y;
 	mSprites.push_back(createSnakePart(&pos, SNAKE_HEAD));
+	pos.x += BLOCK_SIZE;
+	mSprites.push_back(createSnakePart(&pos, SNAKE_BODY));
 	pos.x += BLOCK_SIZE;
 	mSprites.push_back(createSnakePart(&pos, SNAKE_BODY));
 	pos.x += BLOCK_SIZE;
@@ -33,8 +37,9 @@ Sprite* Snake::createSnakePart(SDL_Point* pos, int snake_part)
 
 void Snake::handleEvents(SDL_Event* e)
 {
-	if (e->type == SDL_KEYDOWN)
+	if (e->type == SDL_KEYDOWN && e->key.repeat == 0 && turned == false)
 	{
+		oldDirection = direction;
 		switch(e->key.keysym.sym)
 		{
 			case SDLK_a:
@@ -94,22 +99,31 @@ void Snake::move()
 	mSprites.pop_front();
 
 	Sprite* tail = mSprites.back();
+	mSprites.pop_back();
+	tail->setPos(oldPos.x, oldPos.y);
+	tail->setRotation(head->getRotation());
 	if (turned == true)
 	{
-		tail->setClipRect(&mSnakeClips[SNAKE_ROT]);
-		printf("aa\n");
 		turned = false;
+		tail->setClipRect(&mSnakeClips[getRotateTexture()]);
 	}
 	else
 	{
 		tail->setClipRect(&mSnakeClips[SNAKE_BODY]);
 	}
-	mSprites.pop_back();
-	tail->setPos(oldPos.x, oldPos.y);
-	tail->setRotation(head->getRotation());
 	mSprites.push_front(tail);
 	mSprites.push_front(head);
 	mSprites.back()->setClipRect(&mSnakeClips[SNAKE_TAIL]);
+}
+
+int Snake::getRotateTexture()
+{
+	if ((oldDirection == DIR_DOWN && direction == DIR_LEFT) ||
+			(oldDirection == DIR_UP && direction == DIR_RIGHT) ||
+			(oldDirection == DIR_LEFT && direction == DIR_UP) ||
+			(oldDirection == DIR_RIGHT && direction == DIR_DOWN))
+		return SNAKE_ROT_B;
+	return SNAKE_ROT_A;
 }
 
 void Snake::render()

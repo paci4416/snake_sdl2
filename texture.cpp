@@ -23,10 +23,10 @@ bool Texture::loadFromFile(SDL_Renderer* renderer, std::string path, bool keying
 	}
 	else
 	{
-		if (keying)
-		{
-			SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0xff, 0, 0xff));
-		}
+		/* if (keying) */
+		/* { */
+		/* 	SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0xff, 0, 0xff)); */
+		/* } */
 
 		texture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
 		if (texture == NULL)

@@ -2,8 +2,8 @@
 
 Game::Game()
 {
-	this->mWidth = 640;
-	this->mHeight = 480;
+	this->mWidth = 720;
+	this->mHeight = 720;
 	this->running = false;
 	sillyTime = 0;
 }
@@ -43,7 +43,7 @@ void Game::handleEvents()
 void Game::update()
 {
 	SDL_RenderClear(this->mRenderer);
-	if (sillyTime == 30)
+	if (sillyTime == 0)
 	{
 		sillyTime = 0;
 		mSnake->move();

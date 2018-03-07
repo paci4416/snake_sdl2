@@ -6,7 +6,8 @@
 enum {
 	SNAKE_HEAD,
 	SNAKE_BODY,
-	SNAKE_ROT,
+	SNAKE_ROT_A,
+	SNAKE_ROT_B,
 	SNAKE_TAIL,
 };
 
@@ -26,10 +27,12 @@ class Snake
 		void render();
 	private:
 		bool turned;
+		int oldDirection;
+		int getRotateTexture();
 		Sprite* createSnakePart(SDL_Point* pos, int snake_part);
 		const int DIR_MULT = 90;
 		int direction;
-		const int BLOCK_SIZE = 20;
+		const int BLOCK_SIZE = 18;
 		SDL_Point mPos;
 		std::list<Sprite*> mSprites;
 		Texture* mTexture;
