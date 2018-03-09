@@ -7,6 +7,7 @@ class Sprite
 {
 	public:
 		Sprite(Texture* sprite, SDL_Renderer* r);
+		Sprite(const Sprite &sprite);
 		SDL_Rect* getClipRect();
 		void setPos(int x, int y);
 		SDL_Point getPos() {return mPos;};

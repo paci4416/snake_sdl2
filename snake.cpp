@@ -1,7 +1,8 @@
 #include "snake.h"
 
-Snake::Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos, int screenHeight, int screenWidth)
+Snake::Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos, int blockSize, int screenHeight, int screenWidth)
 {
+	BLOCK_SIZE = blockSize;
 	mRenderer = r;
 	mTexture = t;
 	mSnakeClips[SNAKE_HEAD] = {0, 0, BLOCK_SIZE, BLOCK_SIZE};
@@ -14,6 +15,7 @@ Snake::Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos, int screenHeight,
 	direction = DIR_LEFT;
 	turned = false;
 	mAlive = true;
+	mGrowing = false;
 	this->screenHeight = screenHeight;
 	this->screenWidth = screenWidth;
 
@@ -29,6 +31,16 @@ Snake::Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos, int screenHeight,
 	mSprites.push_back(createSnakePart(&pos, SNAKE_TAIL));
 }
 
+Sprite::Sprite(const Sprite &sprite)
+{
+	this->mPos = sprite.mPos;
+	this->rot = sprite.rot;
+	this->mTexture = sprite.mTexture;
+	this->center = sprite.center;
+	this->renderer = sprite.renderer;
+	this->clip = clip;
+}
+
 Snake::~Snake()
 {
 	for(std::list<Sprite*>::iterator it = mSprites.begin(); it != mSprites.end(); it++)
@@ -36,6 +48,10 @@ Snake::~Snake()
 		delete *it;
 	}
 	mSprites.clear();
+}
+
+void Snake::growUp()
+{
 }
 
 Sprite* Snake::createSnakePart(SDL_Point* pos, int snake_part)
@@ -82,6 +98,9 @@ void Snake::handleEvents(SDL_Event* e)
 					turned = true;
 				}
 				break;
+			case SDLK_g:
+				mGrowing = true;
+				break;
 		}
 	}
 }
@@ -89,25 +108,21 @@ void Snake::handleEvents(SDL_Event* e)
 void Snake::move()
 {
 	SDL_Point oldPos = mPos;
-	SDL_Point deltaPos = {0, 0};
 	switch(direction)
 	{
 		case DIR_UP:
-			deltaPos.y -= BLOCK_SIZE;
+			mPos.y -= BLOCK_SIZE;
 			break;
 		case DIR_DOWN:
-			deltaPos.y += BLOCK_SIZE;
+			mPos.y += BLOCK_SIZE;
 			break;
 		case DIR_LEFT:
-			deltaPos.x -= BLOCK_SIZE;
+			mPos.x -= BLOCK_SIZE;
 			break;
 		case DIR_RIGHT:
-			deltaPos.x += BLOCK_SIZE;
+			mPos.x += BLOCK_SIZE;
 			break;
 	}
-
-	mPos.x += deltaPos.x;
-	mPos.y += deltaPos.y;
 
 	if (isOutOfScreen())
 	{
@@ -121,7 +136,17 @@ void Snake::move()
 		mSprites.pop_front();
 
 		Sprite* tail = mSprites.back();
-		mSprites.pop_back();
+		if (mGrowing)
+		{
+			mGrowing = false;
+			Sprite* newPart = new Sprite(*tail);
+			tail = newPart;
+		}
+		else
+		{
+			mSprites.pop_back();
+		}
+
 		tail->setPos(oldPos.x, oldPos.y);
 		tail->setRotation(head->getRotation());
 		if (turned == true)

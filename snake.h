@@ -21,24 +21,26 @@ enum {
 class Snake
 {
 	public:
-		Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos, int screenHeight, int screenWidth);
+		Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos, int blockSize, int screenHeight, int screenWidth);
 		~Snake();
 		void handleEvents(SDL_Event* e);
 		void move();
 		void render();
 		bool isAlive() {return this->mAlive;}
 	private:
+		void growUp();
+		Sprite* createSnakePart(SDL_Point* pos, int snake_part);
 		bool isOutOfScreen();
+		bool mGrowing;
 		bool mAlive;
 		bool turned;
 		int screenHeight;
 		int screenWidth;
 		int oldDirection;
 		int getRotateTexture();
-		Sprite* createSnakePart(SDL_Point* pos, int snake_part);
 		const int DIR_MULT = 90;
 		int direction;
-		const int BLOCK_SIZE = 18;
+		int BLOCK_SIZE;
 		SDL_Point mPos;
 		std::list<Sprite*> mSprites;
 		Texture* mTexture;

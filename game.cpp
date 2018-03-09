@@ -6,8 +6,10 @@ Game::Game()
 	this->mHeight = 720;
 	this->running = false;
 	this->mSnake = NULL;
+	this->mApple = NULL;
 	this->mTexture = NULL;
-	sillyTime = 0;
+	this->mAppleClipRect = {0,BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE};
+	srand(time(NULL));
 }
 
 Game::~Game()
@@ -51,12 +53,18 @@ void Game::handleEvents()
 
 void Game::update()
 {
-	SDL_RenderClear(this->mRenderer);
 	if (mSnake->isAlive())
 	{
 		mSnake->move();
+		placeApple();
 	}
+}
+
+void Game::draw()
+{
+	SDL_RenderClear(this->mRenderer);
 	mSnake->render();
+	mApple->render();
 	SDL_RenderPresent(this->mRenderer);
 }
 
@@ -76,6 +84,13 @@ bool Game::init()
 	return success;
 }
 
+void Game::placeApple()
+{
+	int x = rand() % (mWidth - BLOCK_SIZE);
+	int y = rand() % (mHeight - BLOCK_SIZE);
+	mApple->setPos(x,y);
+}
+
 void Game::reset()
 {
 	if (this->mTexture == NULL)
@@ -88,7 +103,14 @@ void Game::reset()
 	{
 		delete mSnake;
 	}
-		mSnake = new Snake(mRenderer, mTexture, new SDL_Point{mWidth / 2, mHeight / 2}, mHeight, mWidth);
+	mSnake = new Snake(mRenderer, mTexture, new SDL_Point{mWidth / 2, mHeight / 2}, BLOCK_SIZE, mHeight, mWidth);
+	if (mApple != NULL)
+	{
+		delete mApple;
+	}
+
+	mApple = new Sprite(mTexture, mRenderer);
+	mApple->setClipRect(&mAppleClipRect);
 }
 
 bool Game::initSDL()
