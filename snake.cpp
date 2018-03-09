@@ -1,6 +1,6 @@
 #include "snake.h"
 
-Snake::Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos)
+Snake::Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos, int screenHeight, int screenWidth)
 {
 	mRenderer = r;
 	mTexture = t;
@@ -13,6 +13,9 @@ Snake::Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos)
 	mPos.y = startPos->y;
 	direction = DIR_LEFT;
 	turned = false;
+	mAlive = true;
+	this->screenHeight = screenHeight;
+	this->screenWidth = screenWidth;
 
 	SDL_Point pos;
 	pos.x = startPos->x;
@@ -24,6 +27,15 @@ Snake::Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos)
 	mSprites.push_back(createSnakePart(&pos, SNAKE_BODY));
 	pos.x += BLOCK_SIZE;
 	mSprites.push_back(createSnakePart(&pos, SNAKE_TAIL));
+}
+
+Snake::~Snake()
+{
+	for(std::list<Sprite*>::iterator it = mSprites.begin(); it != mSprites.end(); it++)
+	{
+		delete *it;
+	}
+	mSprites.clear();
 }
 
 Sprite* Snake::createSnakePart(SDL_Point* pos, int snake_part)
@@ -77,43 +89,54 @@ void Snake::handleEvents(SDL_Event* e)
 void Snake::move()
 {
 	SDL_Point oldPos = mPos;
+	SDL_Point deltaPos = {0, 0};
 	switch(direction)
 	{
 		case DIR_UP:
-			mPos.y -= BLOCK_SIZE;
+			deltaPos.y -= BLOCK_SIZE;
 			break;
 		case DIR_DOWN:
-			mPos.y += BLOCK_SIZE;
+			deltaPos.y += BLOCK_SIZE;
 			break;
 		case DIR_LEFT:
-			mPos.x -= BLOCK_SIZE;
+			deltaPos.x -= BLOCK_SIZE;
 			break;
 		case DIR_RIGHT:
-			mPos.x += BLOCK_SIZE;
+			deltaPos.x += BLOCK_SIZE;
 			break;
 	}
 
-	Sprite* head = mSprites.front();
-	head->setPos(mPos.x, mPos.y);
-	head->setRotation(direction*DIR_MULT);
-	mSprites.pop_front();
+	mPos.x += deltaPos.x;
+	mPos.y += deltaPos.y;
 
-	Sprite* tail = mSprites.back();
-	mSprites.pop_back();
-	tail->setPos(oldPos.x, oldPos.y);
-	tail->setRotation(head->getRotation());
-	if (turned == true)
+	if (isOutOfScreen())
 	{
-		turned = false;
-		tail->setClipRect(&mSnakeClips[getRotateTexture()]);
+		mAlive = false;
 	}
 	else
 	{
-		tail->setClipRect(&mSnakeClips[SNAKE_BODY]);
+		Sprite* head = mSprites.front();
+		head->setPos(mPos.x, mPos.y);
+		head->setRotation(direction*DIR_MULT);
+		mSprites.pop_front();
+
+		Sprite* tail = mSprites.back();
+		mSprites.pop_back();
+		tail->setPos(oldPos.x, oldPos.y);
+		tail->setRotation(head->getRotation());
+		if (turned == true)
+		{
+			turned = false;
+			tail->setClipRect(&mSnakeClips[getRotateTexture()]);
+		}
+		else
+		{
+			tail->setClipRect(&mSnakeClips[SNAKE_BODY]);
+		}
+		mSprites.push_front(tail);
+		mSprites.push_front(head);
+		mSprites.back()->setClipRect(&mSnakeClips[SNAKE_TAIL]);
 	}
-	mSprites.push_front(tail);
-	mSprites.push_front(head);
-	mSprites.back()->setClipRect(&mSnakeClips[SNAKE_TAIL]);
 }
 
 int Snake::getRotateTexture()
@@ -124,6 +147,19 @@ int Snake::getRotateTexture()
 			(oldDirection == DIR_RIGHT && direction == DIR_DOWN))
 		return SNAKE_ROT_B;
 	return SNAKE_ROT_A;
+}
+
+bool Snake::isOutOfScreen()
+{
+	if (mPos.x < 0 || mPos.x+BLOCK_SIZE > screenWidth)
+	{
+		return true;
+	}
+	if (mPos.y < 0 || mPos.y+BLOCK_SIZE > screenHeight)
+	{
+		return true;
+	}
+	return false;
 }
 
 void Snake::render()

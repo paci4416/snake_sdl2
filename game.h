@@ -18,6 +18,7 @@ class Game {
 		int getWidth();
 		int getHeight();
 	private:
+		void reset();
 		SDL_Rect snakeClip[4];
 		Snake* mSnake;
 		SDL_Renderer* mRenderer;

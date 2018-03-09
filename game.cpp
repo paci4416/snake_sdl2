@@ -5,6 +5,8 @@ Game::Game()
 	this->mWidth = 720;
 	this->mHeight = 720;
 	this->running = false;
+	this->mSnake = NULL;
+	this->mTexture = NULL;
 	sillyTime = 0;
 }
 
@@ -35,22 +37,24 @@ void Game::handleEvents()
 			case SDL_QUIT:
 				this->running = false;
 				break;
+			case SDL_KEYDOWN:
+				if (e.key.keysym.sym == SDLK_r)
+					reset();
+				break;
 		}
-		mSnake->handleEvents(&e);
+		if (mSnake->isAlive())
+		{
+			mSnake->handleEvents(&e);
+		}
 	}
 }
 
 void Game::update()
 {
 	SDL_RenderClear(this->mRenderer);
-	if (sillyTime == 0)
+	if (mSnake->isAlive())
 	{
-		sillyTime = 0;
 		mSnake->move();
-	}
-	else
-	{
-		sillyTime++;
 	}
 	mSnake->render();
 	SDL_RenderPresent(this->mRenderer);
@@ -67,12 +71,24 @@ bool Game::init()
 	success = initSDL();
 	if (success)
 	{
-		this->running = true;
-		this->mTexture = new Texture();
-		this->mTexture->loadFromFile(mRenderer, "snakesprite.png", true);
-		mSnake = new Snake(mRenderer, mTexture, new SDL_Point{mWidth / 2, mHeight / 2});
+		reset();
 	}
 	return success;
+}
+
+void Game::reset()
+{
+	if (this->mTexture == NULL)
+	{
+		this->mTexture = new Texture();
+		this->mTexture->loadFromFile(mRenderer, "snakesprite.png", true);
+	}
+	this->running = true;
+	if (mSnake != NULL)
+	{
+		delete mSnake;
+	}
+		mSnake = new Snake(mRenderer, mTexture, new SDL_Point{mWidth / 2, mHeight / 2}, mHeight, mWidth);
 }
 
 bool Game::initSDL()

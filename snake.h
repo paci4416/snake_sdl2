@@ -21,12 +21,18 @@ enum {
 class Snake
 {
 	public:
-		Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos);
+		Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos, int screenHeight, int screenWidth);
+		~Snake();
 		void handleEvents(SDL_Event* e);
 		void move();
 		void render();
+		bool isAlive() {return this->mAlive;}
 	private:
+		bool isOutOfScreen();
+		bool mAlive;
 		bool turned;
+		int screenHeight;
+		int screenWidth;
 		int oldDirection;
 		int getRotateTexture();
 		Sprite* createSnakePart(SDL_Point* pos, int snake_part);
@@ -37,5 +43,5 @@ class Snake
 		std::list<Sprite*> mSprites;
 		Texture* mTexture;
 		SDL_Renderer* mRenderer;
-		SDL_Rect mSnakeClips[4];
+		SDL_Rect mSnakeClips[5];
 };
