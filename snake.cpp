@@ -26,9 +26,8 @@ Snake::Snake(SDL_Renderer* r, Texture* t, SDL_Point* startPos, int blockSize, in
 	pos.x += BLOCK_SIZE;
 	mSprites.push_back(createSnakePart(&pos, SNAKE_BODY));
 	pos.x += BLOCK_SIZE;
-	mSprites.push_back(createSnakePart(&pos, SNAKE_BODY));
-	pos.x += BLOCK_SIZE;
 	mSprites.push_back(createSnakePart(&pos, SNAKE_TAIL));
+
 }
 
 Sprite::Sprite(const Sprite &sprite)
@@ -105,6 +104,11 @@ void Snake::handleEvents(SDL_Event* e)
 	}
 }
 
+void Snake::kill()
+{
+	mAlive = false;
+}
+
 void Snake::move()
 {
 	SDL_Point oldPos = mPos;
@@ -126,7 +130,7 @@ void Snake::move()
 
 	if (isOutOfScreen())
 	{
-		mAlive = false;
+		kill();
 	}
 	else
 	{
@@ -162,6 +166,11 @@ void Snake::move()
 		mSprites.push_front(head);
 		mSprites.back()->setClipRect(&mSnakeClips[SNAKE_TAIL]);
 	}
+
+	if (isOnItself())
+	{
+		kill();
+	}
 }
 
 int Snake::getRotateTexture()
@@ -187,11 +196,42 @@ bool Snake::isOutOfScreen()
 	return false;
 }
 
+bool Snake::isOnApple(SDL_Point applePos)
+{
+	for(auto const& sprite: mSprites)
+	{
+		if (sprite->getPos().x == applePos.x && sprite->getPos().y == applePos.y)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Snake::isOnItself()
+{
+	bool first = true;
+	for(auto const& sprite: mSprites)
+	{
+		if (first)
+		{
+			first = false;
+			continue;
+		}
+		if (sprite->getPos().x == mPos.x && sprite->getPos().y == mPos.y)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void Snake::render()
 {
-	for(auto &value: this->mSprites)
+	for(std::list<Sprite*>::reverse_iterator it = mSprites.rbegin();
+			it != mSprites.rend(); ++it)
 	{
-		value->render();
+		(*it)->render();
 	}
 }
 

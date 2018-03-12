@@ -42,6 +42,8 @@ void Game::handleEvents()
 			case SDL_KEYDOWN:
 				if (e.key.keysym.sym == SDLK_r)
 					reset();
+				else if(e.key.keysym.sym == SDLK_c)
+					placeApple();
 				break;
 		}
 		if (mSnake->isAlive())
@@ -56,7 +58,10 @@ void Game::update()
 	if (mSnake->isAlive())
 	{
 		mSnake->move();
-		placeApple();
+	}
+	if (mSnake->isOnApple(mApple->getPos()))
+	{
+		printf("YOHO!\n");
 	}
 }
 
@@ -86,8 +91,10 @@ bool Game::init()
 
 void Game::placeApple()
 {
-	int x = rand() % (mWidth - BLOCK_SIZE);
-	int y = rand() % (mHeight - BLOCK_SIZE);
+	int maxBlocksInWidth = mWidth / BLOCK_SIZE;
+	int maxBlocksInHeight = mHeight / BLOCK_SIZE;
+	int x = (rand() % maxBlocksInWidth) * BLOCK_SIZE;
+	int y = (rand() % maxBlocksInHeight) * BLOCK_SIZE;
 	mApple->setPos(x,y);
 }
 
@@ -111,6 +118,7 @@ void Game::reset()
 
 	mApple = new Sprite(mTexture, mRenderer);
 	mApple->setClipRect(&mAppleClipRect);
+	placeApple();
 }
 
 bool Game::initSDL()

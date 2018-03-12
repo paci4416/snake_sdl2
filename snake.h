@@ -2,6 +2,7 @@
 
 #include <list>
 #include "sprite.h"
+#include "point.h"
 
 enum {
 	SNAKE_HEAD,
@@ -25,12 +26,15 @@ class Snake
 		~Snake();
 		void handleEvents(SDL_Event* e);
 		void move();
+		void kill();
 		void render();
 		bool isAlive() {return this->mAlive;}
+		bool isOnApple(SDL_Point applePos);
 	private:
 		void growUp();
 		Sprite* createSnakePart(SDL_Point* pos, int snake_part);
 		bool isOutOfScreen();
+		bool isOnItself();
 		bool mGrowing;
 		bool mAlive;
 		bool turned;

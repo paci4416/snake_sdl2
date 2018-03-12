@@ -1,7 +1,7 @@
 CC = g++
-OBJS = main.cpp game.cpp texture.cpp sprite.cpp snake.cpp
+OBJS = main.cpp game.cpp texture.cpp sprite.cpp snake.cpp point.cpp
 LFLAGS = -lSDL2 -lSDL2_image
-CFLAGS = -std=c++11
+CFLAGS = -std=c++14
 OUT = play
 
 all: $(OBJS)
@@ -12,5 +12,3 @@ all: $(OBJS)
 
 clean:
 	rm play
-
-
