@@ -28,10 +28,10 @@ class Snake
 		void move();
 		void kill();
 		void render();
+		void growUp();
 		bool isAlive() {return this->mAlive;}
 		bool isOnApple(SDL_Point applePos);
 	private:
-		void growUp();
 		Sprite* createSnakePart(SDL_Point* pos, int snake_part);
 		bool isOutOfScreen();
 		bool isOnItself();

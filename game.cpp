@@ -21,6 +21,10 @@ Game::~Game()
 	SDL_DestroyRenderer(this->mRenderer);
 	SDL_DestroyWindow(this->mWindow);
 	delete mTexture;
+	delete mApple;
+	delete mSnake;
+	this->mSnake = NULL;
+	this->mApple = NULL;
 	this->mRenderer = NULL;
 	this->mWindow = NULL;
 	this->mTexture = NULL;
@@ -61,7 +65,8 @@ void Game::update()
 	}
 	if (mSnake->isOnApple(mApple->getPos()))
 	{
-		printf("YOHO!\n");
+		placeApple();
+		mSnake->growUp();
 	}
 }
 

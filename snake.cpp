@@ -51,6 +51,7 @@ Snake::~Snake()
 
 void Snake::growUp()
 {
+	mGrowing = true;
 }
 
 Sprite* Snake::createSnakePart(SDL_Point* pos, int snake_part)
@@ -98,7 +99,7 @@ void Snake::handleEvents(SDL_Event* e)
 				}
 				break;
 			case SDLK_g:
-				mGrowing = true;
+				growUp();
 				break;
 		}
 	}

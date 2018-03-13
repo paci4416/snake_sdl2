@@ -1,5 +1,5 @@
 CC = g++
-OBJS = main.cpp game.cpp texture.cpp sprite.cpp snake.cpp point.cpp
+OBJS = main.cpp game.cpp texture.cpp sprite.cpp snake.cpp
 LFLAGS = -lSDL2 -lSDL2_image
 CFLAGS = -std=c++14
 OUT = play
