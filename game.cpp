@@ -5,6 +5,7 @@ Game::Game()
 	this->mWidth = 720;
 	this->mHeight = 720;
 	this->running = false;
+	this->mFont = NULL;
 	this->mSnake = NULL;
 	this->mApple = NULL;
 	this->mTexture = NULL;
@@ -23,12 +24,15 @@ Game::~Game()
 	delete mTexture;
 	delete mApple;
 	delete mSnake;
+	delete mFont;
+	this->mFont = NULL;
 	this->mSnake = NULL;
 	this->mApple = NULL;
 	this->mRenderer = NULL;
 	this->mWindow = NULL;
 	this->mTexture = NULL;
 
+	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
 }
@@ -67,7 +71,9 @@ void Game::update()
 	{
 		placeApple();
 		mSnake->growUp();
+		mScore += 1;
 	}
+	mFont->loadText(std::to_string(mScore), {0,0,0,0xff});
 }
 
 void Game::draw()
@@ -75,6 +81,7 @@ void Game::draw()
 	SDL_RenderClear(this->mRenderer);
 	mSnake->render();
 	mApple->render();
+	mFont->render();
 	SDL_RenderPresent(this->mRenderer);
 }
 
@@ -120,10 +127,16 @@ void Game::reset()
 	{
 		delete mApple;
 	}
-
 	mApple = new Sprite(mTexture, mRenderer);
 	mApple->setClipRect(&mAppleClipRect);
+	if (mFont != NULL)
+	{
+		delete mFont;
+	}
+	mFont = new Font(mRenderer);
+	mFont->loadFont();
 	placeApple();
+	mScore = 0;
 }
 
 bool Game::initSDL()
@@ -169,6 +182,12 @@ bool Game::initSDL()
 				if( !( IMG_Init( imgFlags ) & imgFlags ) )
 				{
 					printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
+					success = false;
+				}
+
+				if ( TTF_Init() == -1 )
+				{
+					printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
 					success = false;
 				}
 			}

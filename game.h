@@ -2,9 +2,11 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include "texture.h"
 #include "sprite.h"
 #include "snake.h"
+#include "font.h"
 #include <string>
 #include <stdlib.h>
 #include <time.h>
@@ -25,11 +27,13 @@ class Game {
 		void reset();
 		void placeApple();
 		Snake* mSnake;
+		Font* mFont;
 		Sprite* mApple;
 		SDL_Renderer* mRenderer;
 		SDL_Window* mWindow;
 		SDL_Rect mAppleClipRect;
 		Texture* mTexture;
+		int mScore;
 		int mWidth;
 		int mHeight;
 		bool running;
