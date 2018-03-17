@@ -24,18 +24,20 @@ class Game {
 		int getHeight();
 	private:
 		const int BLOCK_SIZE = 18;
+		const int GAME_WIDTH = 720;
+		const int GAME_HEIGHT = 720;;
 		void reset();
 		void placeApple();
 		Snake* mSnake;
-		Font* mFont;
+		Font* mScoreText;
+		Font* mEndText;
+		std::string mEndMessage;
 		Sprite* mApple;
 		SDL_Renderer* mRenderer;
 		SDL_Window* mWindow;
 		SDL_Rect mAppleClipRect;
 		Texture* mTexture;
 		int mScore;
-		int mWidth;
-		int mHeight;
 		bool running;
 		bool initSDL();
 };

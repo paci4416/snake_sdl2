@@ -49,7 +49,7 @@ bool Texture::loadFromFile(SDL_Renderer* renderer, std::string path, bool keying
 bool Texture::loadFromRenderedText(SDL_Renderer* renderer, TTF_Font* font, std::string text, SDL_Color color)
 {
 	clear();
-	SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), color);
+	SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), color);
 	if (textSurface == NULL)
 	{
 		printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());

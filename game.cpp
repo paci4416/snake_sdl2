@@ -2,14 +2,14 @@
 
 Game::Game()
 {
-	this->mWidth = 720;
-	this->mHeight = 720;
 	this->running = false;
-	this->mFont = NULL;
+	this->mScoreText = NULL;
+	this->mEndText = NULL;
 	this->mSnake = NULL;
 	this->mApple = NULL;
 	this->mTexture = NULL;
 	this->mAppleClipRect = {0,BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE};
+	mEndMessage = "Press 'R' to play again";
 	srand(time(NULL));
 }
 
@@ -24,8 +24,10 @@ Game::~Game()
 	delete mTexture;
 	delete mApple;
 	delete mSnake;
-	delete mFont;
-	this->mFont = NULL;
+	delete mScoreText;
+	delete mEndText;
+	this->mScoreText = NULL;
+	this->mEndText = NULL;
 	this->mSnake = NULL;
 	this->mApple = NULL;
 	this->mRenderer = NULL;
@@ -66,6 +68,13 @@ void Game::update()
 	if (mSnake->isAlive())
 	{
 		mSnake->move();
+		mScoreText->loadText(std::to_string(mScore));
+	}
+	else
+	{
+		mScoreText->loadText(std::string("Score: ") + std::to_string(mScore));
+		mScoreText->setPos({(GAME_WIDTH - mScoreText->getWidth()) / 2,
+				(GAME_HEIGHT - mScoreText->getHeight()) / 2 - mScoreText->getHeight()});
 	}
 	if (mSnake->isOnApple(mApple->getPos()))
 	{
@@ -73,7 +82,6 @@ void Game::update()
 		mSnake->growUp();
 		mScore += 1;
 	}
-	mFont->loadText(std::to_string(mScore), {0,0,0,0xff});
 }
 
 void Game::draw()
@@ -81,7 +89,11 @@ void Game::draw()
 	SDL_RenderClear(this->mRenderer);
 	mSnake->render();
 	mApple->render();
-	mFont->render();
+	mScoreText->render();
+	if (!mSnake->isAlive())
+	{
+		mEndText->render();
+	}
 	SDL_RenderPresent(this->mRenderer);
 }
 
@@ -103,8 +115,8 @@ bool Game::init()
 
 void Game::placeApple()
 {
-	int maxBlocksInWidth = mWidth / BLOCK_SIZE;
-	int maxBlocksInHeight = mHeight / BLOCK_SIZE;
+	int maxBlocksInWidth = GAME_WIDTH / BLOCK_SIZE;
+	int maxBlocksInHeight = GAME_HEIGHT / BLOCK_SIZE;
 	int x = (rand() % maxBlocksInWidth) * BLOCK_SIZE;
 	int y = (rand() % maxBlocksInHeight) * BLOCK_SIZE;
 	mApple->setPos(x,y);
@@ -122,19 +134,26 @@ void Game::reset()
 	{
 		delete mSnake;
 	}
-	mSnake = new Snake(mRenderer, mTexture, new SDL_Point{mWidth / 2, mHeight / 2}, BLOCK_SIZE, mHeight, mWidth);
+	mSnake = new Snake(mRenderer, mTexture, new SDL_Point{GAME_WIDTH / 2, GAME_HEIGHT / 2}, BLOCK_SIZE, GAME_HEIGHT, GAME_WIDTH);
 	if (mApple != NULL)
 	{
 		delete mApple;
 	}
 	mApple = new Sprite(mTexture, mRenderer);
 	mApple->setClipRect(&mAppleClipRect);
-	if (mFont != NULL)
+	if (mScoreText != NULL)
 	{
-		delete mFont;
+		delete mScoreText;
 	}
-	mFont = new Font(mRenderer);
-	mFont->loadFont();
+	mScoreText = new Font(mRenderer);
+	mScoreText->loadFont();
+	if (mEndText == NULL)
+	{
+		mEndText = new Font(mRenderer);
+		mEndText->loadFont();
+		mEndText->loadText(mEndMessage);
+		mEndText->setPos({(GAME_WIDTH - mEndText->getWidth()) / 2, (GAME_HEIGHT - mEndText->getHeight()) / 2});
+	}
 	placeApple();
 	mScore = 0;
 }
@@ -157,7 +176,7 @@ bool Game::initSDL()
 		}
 
 		//Create window
-		mWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, this->mWidth, this->mHeight, SDL_WINDOW_SHOWN );
+		mWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GAME_WIDTH, GAME_HEIGHT, SDL_WINDOW_SHOWN );
 		if( mWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
