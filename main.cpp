@@ -16,4 +16,5 @@ int main( int argc, char* args[]) {
 		game.update();
 		game.draw();
 	}
+	return 0;
 }

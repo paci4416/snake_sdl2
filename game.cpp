@@ -65,6 +65,8 @@ void Game::handleEvents()
 
 void Game::update()
 {
+
+	Uint32 startTicks = SDL_GetTicks();
 	if (mSnake->isAlive())
 	{
 		mSnake->move();
@@ -82,6 +84,12 @@ void Game::update()
 		mSnake->growUp();
 		mScore += 1;
 	}
+	Uint32 ticks = SDL_GetTicks();
+	if ((ticks - startTicks) <  TICKS_PER_FRAME && mSnake->isAlive())
+	{
+		SDL_Delay(TICKS_PER_FRAME - (ticks - startTicks));
+	}
+
 }
 
 void Game::draw()
@@ -194,7 +202,7 @@ bool Game::initSDL()
 			else
 			{
 				//Initialize renderer color
-				SDL_SetRenderDrawColor( mRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+				SDL_SetRenderDrawColor( mRenderer, 0xFF, 0xFF, 0xC0, 0xFF );
 
 				//Initialize PNG loading
 				int imgFlags = IMG_INIT_PNG;

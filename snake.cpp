@@ -70,6 +70,7 @@ void Snake::handleEvents(SDL_Event* e)
 		oldDirection = direction;
 		switch(e->key.keysym.sym)
 		{
+			case SDLK_LEFT:
 			case SDLK_a:
 				if (direction == DIR_UP || direction == DIR_DOWN)
 				{
@@ -77,6 +78,7 @@ void Snake::handleEvents(SDL_Event* e)
 					turned = true;
 				}
 				break;
+			case SDLK_UP:
 			case SDLK_w:
 				if (direction == DIR_LEFT || direction == DIR_RIGHT)
 				{
@@ -84,6 +86,7 @@ void Snake::handleEvents(SDL_Event* e)
 					turned = true;
 				}
 				break;
+			case SDLK_RIGHT:
 			case SDLK_d:
 				if (direction == DIR_UP || direction == DIR_DOWN)
 				{
@@ -91,6 +94,7 @@ void Snake::handleEvents(SDL_Event* e)
 					turned = true;
 				}
 				break;
+			case SDLK_DOWN:
 			case SDLK_s:
 				if (direction == DIR_LEFT || direction == DIR_RIGHT)
 				{

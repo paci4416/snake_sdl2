@@ -26,6 +26,8 @@ class Game {
 		const int BLOCK_SIZE = 18;
 		const int GAME_WIDTH = 720;
 		const int GAME_HEIGHT = 720;;
+		const int FPS = 15;
+		const Uint32 TICKS_PER_FRAME = 1000 / FPS;
 		void reset();
 		void placeApple();
 		Snake* mSnake;
