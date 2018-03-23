@@ -8,7 +8,11 @@ Game::Game()
 	this->mSnake = NULL;
 	this->mApple = NULL;
 	this->mTexture = NULL;
+	this->mMusic = NULL;
+	this->mEatSound = NULL;
+	this->mDieSound = NULL;
 	this->mAppleClipRect = {0,BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE};
+	mMuted = false;
 	mEndMessage = "Press 'R' to play again";
 	srand(time(NULL));
 }
@@ -50,10 +54,18 @@ void Game::handleEvents()
 				this->running = false;
 				break;
 			case SDL_KEYDOWN:
-				if (e.key.keysym.sym == SDLK_r)
-					reset();
-				else if(e.key.keysym.sym == SDLK_c)
-					placeApple();
+				switch(e.key.keysym.sym)
+				{
+					case SDLK_r:
+						reset();
+						break;
+					case SDLK_c:
+						placeApple();
+						break;
+					case SDLK_m:
+						toggleMute();
+						break;
+				}
 				break;
 		}
 		if (mSnake->isAlive())
@@ -74,12 +86,18 @@ void Game::update()
 	}
 	else
 	{
+		if (!mDieSoundPlayed)
+		{
+			playSound(mDieSound);
+			mDieSoundPlayed = true;
+		}
 		mScoreText->loadText(std::string("Score: ") + std::to_string(mScore));
 		mScoreText->setPos({(GAME_WIDTH - mScoreText->getWidth()) / 2,
 				(GAME_HEIGHT - mScoreText->getHeight()) / 2 - mScoreText->getHeight()});
 	}
 	if (mSnake->isOnApple(mApple->getPos()))
 	{
+		playSound(mEatSound);
 		placeApple();
 		mSnake->growUp();
 		mScore += 1;
@@ -116,7 +134,7 @@ bool Game::init()
 	success = initSDL();
 	if (success)
 	{
-		reset();
+		success = reset();
 	}
 	return success;
 }
@@ -130,8 +148,32 @@ void Game::placeApple()
 	mApple->setPos(x,y);
 }
 
-void Game::reset()
+void Game::toggleMute()
 {
+	if (mMuted)
+	{
+		Mix_ResumeMusic();
+		mMuted = false;
+	}
+	else
+	{
+		Mix_PauseMusic();
+		mMuted = true;
+	}
+}
+
+void Game::playSound(Mix_Chunk* sound)
+{
+	if (!mMuted)
+	{
+		Mix_PlayChannel(-1, sound, 0);
+	}
+}
+
+bool Game::reset()
+{
+	bool success = true;
+
 	if (this->mTexture == NULL)
 	{
 		this->mTexture = new Texture();
@@ -162,15 +204,34 @@ void Game::reset()
 		mEndText->loadText(mEndMessage);
 		mEndText->setPos({(GAME_WIDTH - mEndText->getWidth()) / 2, (GAME_HEIGHT - mEndText->getHeight()) / 2});
 	}
+	if (mMusic == NULL)
+	{
+		mMusic = Mix_LoadMUS("Farty-McSty.mp3");
+		success = mixerErrCheck(mMusic);
+		Mix_PlayMusic(mMusic, -1);
+	}
+	if (mEatSound == NULL)
+	{
+		mEatSound = Mix_LoadWAV("eatSound.ogg");
+		success = mixerErrCheck(mEatSound);
+	}
+	if (mDieSound == NULL)
+	{
+		mDieSound = Mix_LoadWAV("dieSound.ogg");
+		success = mixerErrCheck(mDieSound);
+	}
+	mDieSoundPlayed = false;
+	Mix_HaltChannel(-1);
 	placeApple();
 	mScore = 0;
+	return success;
 }
 
 bool Game::initSDL()
 {
 	bool success = true;
 	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		success = false;
@@ -217,9 +278,24 @@ bool Game::initSDL()
 					printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
 					success = false;
 				}
+
+				if ( Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0 )
+				{
+					printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+					success = false;
+				}
 			}
 		}
 	}
 	return success;
 }
 
+bool Game::mixerErrCheck(void* ptr)
+{
+	if (ptr == NULL)
+	{
+		printf("Failed to load mixer object! SDL_mixer Error: %s\n", Mix_GetError());
+		return false;
+	}
+	return true;
+}

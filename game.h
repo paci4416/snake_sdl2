@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include "texture.h"
 #include "sprite.h"
 #include "snake.h"
@@ -28,11 +29,18 @@ class Game {
 		const int GAME_HEIGHT = 720;;
 		const int FPS = 15;
 		const Uint32 TICKS_PER_FRAME = 1000 / FPS;
-		void reset();
+		bool reset();
 		void placeApple();
 		Snake* mSnake;
 		Font* mScoreText;
 		Font* mEndText;
+		Mix_Music* mMusic;
+		bool mDieSoundPlayed;
+		Mix_Chunk* mEatSound;
+		Mix_Chunk* mDieSound;
+		void playSound(Mix_Chunk* sound);
+		void toggleMute();
+		bool mMuted;
 		std::string mEndMessage;
 		Sprite* mApple;
 		SDL_Renderer* mRenderer;
@@ -42,4 +50,5 @@ class Game {
 		int mScore;
 		bool running;
 		bool initSDL();
+		bool mixerErrCheck(void *ptr);
 };

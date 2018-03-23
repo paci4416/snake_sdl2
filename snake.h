@@ -2,7 +2,6 @@
 
 #include <list>
 #include "sprite.h"
-#include "point.h"
 
 enum {
 	SNAKE_HEAD,
